@@ -32,7 +32,7 @@ def scrape_website(base_url, output_folder="website_data"):
     # Parse with BeautifulSoup
     soup = BeautifulSoup(html_content, "html.parser")
 
-    # Extract CSS + JS links
+    # Extract CSS + JS + media
     resources = []
 
     # CSS files
@@ -47,10 +47,22 @@ def scrape_website(base_url, output_folder="website_data"):
         if src:
             resources.append(urljoin(base_url, src))
 
+    # Images
+    for img in soup.find_all("img", src=True):
+        src = img.get("src")
+        if src:
+            resources.append(urljoin(base_url, src))
+
+    # Audio + Video + Source
+    for tag in soup.find_all(["audio", "video", "source"], src=True):
+        src = tag.get("src")
+        if src:
+            resources.append(urljoin(base_url, src))
+
     # Download resources
     for resource_url in resources:
         download_file(session, resource_url, output_folder)
 
 if __name__ == "__main__":
-    website_url = "https://tortillaco-leuven.be/"  
+    website_url = "anywebsite.example.com"  
     scrape_website(website_url)
